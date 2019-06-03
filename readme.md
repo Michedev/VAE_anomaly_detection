@@ -1,7 +1,7 @@
 # Variational autoencoder for anomaly detection
 
 This repo contains my personal implementation of Variational autoencoder
- in tensorflow for anomaly detection, that follow
+ in tensorflow for anomaly detection, that follows
  [Variational Autoencoder based Anomaly Detection using Reconstruction Probability by Jinwon An, Sungzoon Cho](https://www.semanticscholar.org/paper/Variational-Autoencoder-based-Anomaly-Detection-An-Cho/061146b1d7938d7a8dae70e3531a00fceb3c78e8)
  <br>
  In order to make work the variational autoencoder for anomaly detection i've to change the last layer of the decoder
