@@ -25,7 +25,7 @@ and variance of the latent space, then decode the sampled values from
 the latent distribution
 - For anomaly detection there are two methods _reconstructed_probability_
 and _is_outlier_: the first estimate the reconstructed_probability like name
-guess while the second use them to tell than an observation is an outlier if
+guesses while the second use them to tell than an observation is an outlier if
 the rec. prob. is less than alpha, an input parameter such that by default if 0.05
 
 ## Code examples
