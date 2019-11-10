@@ -1,3 +1,4 @@
+
 # Variational autoencoder for anomaly detection
 
 This repo contains my personal implementation of Variational autoencoder
@@ -8,6 +9,7 @@ This repo contains my personal implementation of Variational autoencoder
  from a simple fully connected layer to two layers that estimate mean and variance
  of x~ ( _p(x|z)_ )
 <br>
+NOTE: this works with tensorflow 1.x <br>
 ## Main methods of VAE class
 - My implementation try to follow scikit-learn api, so it has a _fit_ method
 to train the model 
