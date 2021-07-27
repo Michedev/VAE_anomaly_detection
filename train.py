@@ -2,11 +2,12 @@ import argparse
 
 import torch
 import yaml
-from ignite.engine import create_supervised_trainer, Events
+from ignite.engine import Engine, Events
 from ignite.metrics import Average, RunningAverage
 from path import Path
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+from ignite.contrib.handlers.tqdm_logger import ProgressBar
 
 from VAE import VAEAnomaly
 from dataset import load_dataset
@@ -23,13 +24,34 @@ def get_folder_run() -> Path:
     return folder_run
 
 
-def train(model, opt, dloader, epochs: int, experiment_folder, device):
-    trainer = create_supervised_trainer(model, opt, lambda o: o['loss'], output_transform=lambda x: x, device=device)
+class TrainStep:
+
+    def __init__(self, model, opt, device=None):
+        self.model = model
+        self.opt = opt
+        self.device = device
+
+    def __call__(self, engine, batch):
+        x = batch[0]
+        if self.device: x.to(self.device)
+        pred_output = self.model(x)
+        pred_output['loss'].backward()
+        self.opt.step()
+        return pred_output
+
+
+def train(model, opt, dloader, epochs: int, experiment_folder, device, args):
+    step = TrainStep(model, opt, device)
+    trainer = Engine(step)
 
     Average(lambda o: o['loss']).attach(trainer, 'avg_loss')
     RunningAverage(output_transform=lambda o: o['loss']).attach(trainer, 'running_avg_loss')
 
-    setup_logger(experiment_folder, trainer, model)
+    if not args.no_progress_bar: 
+        ProgressBar().attach(trainer, ['running_avg_loss'])
+
+    setup_logger(experiment_folder, trainer, model, 
+                 args.steps_log_loss, args.steps_log_norm_params)
 
     trainer.add_event_handler(Events.EPOCH_COMPLETED,
                               lambda e: torch.save(model.state_dict(), experiment_folder / 'model.pth'))
@@ -37,11 +59,11 @@ def train(model, opt, dloader, epochs: int, experiment_folder, device):
     trainer.run(dloader, epochs)
 
 
-def setup_logger(experiment_folder, trainer, model):
+def setup_logger(experiment_folder, trainer, model, freq_loss: int = 1_000, freq_norm_params: int = 1_000):
     logger = SummaryWriter(log_dir=experiment_folder)
-    for l in ['loss', 'kl', 'log_lik']:
+    for l in ['loss', 'kl', 'recon_loss']:
         event_handler = lambda e, l=l: logger.add_scalar(f'train/{l}', e.state.output[l], e.state.iteration)
-        trainer.add_event_handler(Events.ITERATION_COMPLETED(every=1_000), event_handler)
+        trainer.add_event_handler(Events.ITERATION_COMPLETED(every=freq_loss), event_handler)
 
     def log_norm(engine, logger, model=model):
         norm1 = sum(p.norm(1) for p in model.parameters())
@@ -50,7 +72,7 @@ def setup_logger(experiment_folder, trainer, model):
         logger.add_scalar('train/norm1_params', norm1, it)
         logger.add_scalar('train/norm1_grad', norm1_grad, it)
 
-    trainer.add_event_handler(Events.ITERATION_COMPLETED(every=1_000), log_norm, logger=logger)
+    trainer.add_event_handler(Events.ITERATION_COMPLETED(every=freq_norm_params), log_norm, logger=logger)
 
 
 def get_args() -> argparse.Namespace:
@@ -63,6 +85,10 @@ def get_args() -> argparse.Namespace:
     parser.add_argument('--batch-size', '-b', type=int, dest='batch_size', default=32)
     parser.add_argument('--device', '-d', type=str, dest='device', default='cuda:0')
     parser.add_argument('--lr', type=float, dest='lr', default=1e-4)
+    parser.add_argument('--no-progress-bar', action='store_true', dest='no_progress_bar')
+    parser.add_argument('--steps-log-loss', type=int, dest='steps_log_loss', default=1_000)
+    parser.add_argument('--steps-log-norm-params', type=int, 
+                        dest='steps_log_norm_params', default=1_000)
 
     return parser.parse_args()
 
@@ -76,6 +102,7 @@ def store_codebase_into_experiment(experiment_folder):
 
 if __name__ == '__main__':
     args = get_args()
+    print(args)
     experiment_folder = get_folder_run()
     model = VAEAnomaly(args.input_size, args.latent_size, args.num_resamples).to(args.device)
     opt = torch.optim.Adam(model.parameters(), args.lr)
@@ -85,4 +112,4 @@ if __name__ == '__main__':
     with open(experiment_folder / 'config.yaml', 'w') as f:
         yaml.dump(args, f)
 
-    train(model, opt, dloader, args.epochs, experiment_folder, args.device)
+    train(model, opt, dloader, args.epochs, experiment_folder, args.device, args)
