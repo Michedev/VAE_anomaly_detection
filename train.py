@@ -33,7 +33,8 @@ class TrainStep:
 
     def __call__(self, engine, batch):
         x = batch[0]
-        if self.device: x.to(self.device)
+        if self.device: 
+            x = x.to(self.device)
         pred_output = self.model(x)
         pred_output['loss'].backward()
         self.opt.step()
