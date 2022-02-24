@@ -1,5 +1,4 @@
 import torch
-
 from vae_anomaly_detection.VAE import VAEAnomaly as PytorchVAEAnomaly
 
 
