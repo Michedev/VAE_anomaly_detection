@@ -1,3 +1,6 @@
+# ========== Legacy code ===============
+
+
 from math import ceil
 
 import numpy as np

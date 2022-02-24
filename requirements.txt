@@ -1,5 +1,5 @@
-#requirements for pytorch train
-path==15.1.2
-pytorch-ignite==0.4.4
+path>=15.1.2
+pytorch-ignite>=0.4.4
 PyYAML>=5.5
-torch==1.8.1
+torch>=1.8.1
+tensorflow<2

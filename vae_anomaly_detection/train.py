@@ -9,12 +9,14 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from ignite.contrib.handlers.tqdm_logger import ProgressBar
 
-from VAE import VAEAnomaly
-from dataset import load_dataset
+from vae_anomaly_detection.VAE import VAEAnomaly
+from vae_anomaly_detection.dataset import rand_dataset
+
+EXPERIMENT_FOLDER = Path(__file__).parent.parent
 
 
 def get_folder_run() -> Path:
-    run_path: Path = Path(__file__).parent / 'run'
+    run_path: Path = EXPERIMENT_FOLDER / 'run'
     if not run_path.exists(): run_path.mkdir()
     i = 0
     while (run_path / str(i)).exists():
@@ -35,23 +37,23 @@ class TrainStep:
         x = batch[0]
         if self.device: x.to(self.device)
         pred_output = self.model(x)
-        pred_output['loss'].backward()
+        pred_output['loss'].backward()  # loss function is computed inside the VAE class since it is unsupervised
         self.opt.step()
         return pred_output
 
 
-def train(model, opt, dloader, epochs: int, experiment_folder, device, args):
+def train(model, opt, dloader, epochs: int, experiment_folder, device, progress_bar=True, steps_log_loss=1_000, steps_log_norm_params=10_000):
     step = TrainStep(model, opt, device)
     trainer = Engine(step)
 
     Average(lambda o: o['loss']).attach(trainer, 'avg_loss')
     RunningAverage(output_transform=lambda o: o['loss']).attach(trainer, 'running_avg_loss')
 
-    if not args.no_progress_bar: 
+    if progress_bar:
         ProgressBar().attach(trainer, ['running_avg_loss'])
 
     setup_logger(experiment_folder, trainer, model, 
-                 args.steps_log_loss, args.steps_log_norm_params)
+                 steps_log_loss, steps_log_norm_params)
 
     trainer.add_event_handler(Events.EPOCH_COMPLETED,
                               lambda e: torch.save(model.state_dict(), experiment_folder / 'model.pth'))
@@ -106,10 +108,11 @@ if __name__ == '__main__':
     experiment_folder = get_folder_run()
     model = VAEAnomaly(args.input_size, args.latent_size, args.num_resamples).to(args.device)
     opt = torch.optim.Adam(model.parameters(), args.lr)
-    dloader = DataLoader(load_dataset(), args.batch_size)
+    dloader = DataLoader(rand_dataset(), args.batch_size)
 
     store_codebase_into_experiment(experiment_folder)
     with open(experiment_folder / 'config.yaml', 'w') as f:
         yaml.dump(args, f)
 
-    train(model, opt, dloader, args.epochs, experiment_folder, args.device, args)
+    train(model, opt, dloader, args.epochs, experiment_folder, args.device, not args.no_progress_bar,
+          args.steps_log_loss, args.steps_log_norm_params)
