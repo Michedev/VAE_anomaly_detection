@@ -6,7 +6,7 @@ authors = ["mikedev <mik3dev@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.8<3.10"
 path = "^16.3.0"
 torch = "1.10.1%2Bcpu"
 pytorch-ignite = "^0.4.8"
