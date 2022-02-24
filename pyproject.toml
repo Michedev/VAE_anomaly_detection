@@ -12,6 +12,7 @@ torch = "1.10.1%2Bcpu"
 pytorch-ignite = "^0.4.8"
 PyYAML = ">=6.0"
 tqdm = "^4.62.3"
+tensorboard = "^2.8.0"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=7.0.1"
