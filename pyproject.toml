@@ -16,7 +16,7 @@ classifiers = [
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.6"
+python = ">=3.6.2"
 path = ">=15.0"
 torch = ">=1.8.0%2Bcpu"
 pytorch-ignite = ">=0.4"
