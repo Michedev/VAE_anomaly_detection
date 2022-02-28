@@ -1,11 +1,12 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python package
+name: Python test on all OS in pre release
 
 on:
   release:
-    branches: [ master ]
+    types:
+      - prereleased
 
 jobs:
   build:
@@ -14,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9"]
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
         poetry-version: [ 1.1.13 ]
         os: [macos-latest, windows-latest, ubuntu-20.04]
     steps:

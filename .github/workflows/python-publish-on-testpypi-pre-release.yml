@@ -1,0 +1,31 @@
+
+name: Python pre release on Test Pypi
+
+on:
+  release:
+    types:
+      - prereleased
+
+jobs:
+  build:
+
+    runs-on: {{matrix.os}}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9"]
+        poetry-version: [ 1.1.13 ]
+        os: [ubuntu-20.04]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run image
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+      - name: setup repository testpypi
+        run: poetry config repositories.testpypi https://test.pypi.org/legacy/
+      - name: poetry publish on test pypi
+        run: poetry publish -r testpypi --build --username=__token__ --password=${{secrects.TESTPYPI_PASSWORD}}
