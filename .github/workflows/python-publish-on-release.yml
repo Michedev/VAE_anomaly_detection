@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: {{matrix.os}}
+    runs-on: ${{matrix.os}}
     strategy:
       fail-fast: false
       matrix:
@@ -28,4 +28,4 @@ jobs:
       - name: setup repository testpypi
         run: poetry config repositories.testpypi https://test.pypi.org/legacy/
       - name: poetry publish on test pypi
-        run: poetry publish -r testpypi --build --username=__token__ --password=${{secrects.PYPI_PASSWORD}}
+        run: poetry publish -r testpypi --build --username=__token__ --password=${{secrets.PYPI_PASSWORD}}
