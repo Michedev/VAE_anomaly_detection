@@ -23,6 +23,7 @@ pytorch-ignite = ">=0.4"
 PyYAML = ">=5.0"
 tqdm = ">=4.0"
 tensorboard = ">=0.20"
+numpy = ">= 1.18"
 
 [tool.poetry.dev-dependencies]
 pytest = ">=7.0"
