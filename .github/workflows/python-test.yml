@@ -3,7 +3,12 @@
 
 name: Python test
 
-on: [push]
+on:
+  push:
+    tags-ignore:
+      - *
+    branches:
+      - develop
 
 jobs:
   ci:
