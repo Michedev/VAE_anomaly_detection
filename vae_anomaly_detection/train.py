@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from ignite.contrib.handlers.tqdm_logger import ProgressBar
 
-from vae_anomaly_detection.VAE import VAEAnomaly
+from vae_anomaly_detection.VAE import VAEAnomalyTabular
 from vae_anomaly_detection.dataset import rand_dataset
 
 EXPERIMENT_FOLDER = Path(__file__).parent.parent
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     args = get_args()
     print(args)
     experiment_folder = get_folder_run()
-    model = VAEAnomaly(args.input_size, args.latent_size, args.num_resamples).to(args.device)
+    model = VAEAnomalyTabular(args.input_size, args.latent_size, args.num_resamples).to(args.device)
     opt = torch.optim.Adam(model.parameters(), args.lr)
     dloader = DataLoader(rand_dataset(), args.batch_size)
 

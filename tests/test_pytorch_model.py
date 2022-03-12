@@ -1,5 +1,5 @@
 import torch
-from vae_anomaly_detection.VAE import VAEAnomaly as PytorchVAEAnomaly
+from vae_anomaly_detection.VAE import VAEAnomalyTabular as PytorchVAEAnomaly
 
 
 def test_pytorch_anomaly_detection():

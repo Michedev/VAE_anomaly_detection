@@ -3,7 +3,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 
 from vae_anomaly_detection.train import train as pytorch_train
-from vae_anomaly_detection.VAE import VAEAnomaly as PytorchVAEAnomaly
+from vae_anomaly_detection.VAE import VAEAnomalyTabular as PytorchVAEAnomaly
 from vae_anomaly_detection.dataset import rand_dataset as random_torch_dataset
 
 
