@@ -1,3 +1,5 @@
+from abc import abstractmethod, ABC
+
 import torch
 from torch import nn
 from torch.distributions import Normal, kl_divergence
@@ -38,7 +40,7 @@ def tabular_decoder(latent_size: int, output_size: int):
     )
 
 
-class VAEAnomalyDetection(nn.Module):
+class VAEAnomalyDetection(nn.Module, ABC):
     def __init__(self, input_size: int, latent_size: int, L=10):
         """
         :param input_size: Number of input features
