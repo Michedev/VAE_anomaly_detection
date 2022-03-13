@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "vae_anomaly_detection"
-version = "1.0.0"
+version = "1.1.0"
 description = "Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection following the paper \"Variational Autoencoder based Anomaly Detection using Reconstruction Probability by Jinwon An, Sungzoon Cho\""
 authors = ["Michele De Vita <mik3dev@gmail.com>"]
 homepage = "https://github.com/Michedev/VAE_anomaly_detection"
