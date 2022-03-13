@@ -1,3 +1,5 @@
+from abc import abstractmethod, ABC
+
 import torch
 from torch import nn
 from torch.distributions import Normal, kl_divergence
@@ -38,8 +40,7 @@ def tabular_decoder(latent_size: int, output_size: int):
     )
 
 
-class VAEAnomaly(nn.Module):
-
+class VAEAnomalyDetection(nn.Module, ABC):
     def __init__(self, input_size: int, latent_size: int, L=10):
         """
         :param input_size: Number of input features
@@ -53,6 +54,14 @@ class VAEAnomaly(nn.Module):
         self.encoder = tabular_encoder(input_size, latent_size)
         self.decoder = tabular_decoder(latent_size, input_size)
         self.prior = Normal(0, 1)
+
+    @abstractmethod
+    def make_encoder(self, input_size, latent_size):
+        pass
+
+    @abstractmethod
+    def make_decoder(self, latent_size, output_size):
+        pass
 
     def forward(self, x):
         pred_result = self.predict(x)
@@ -118,5 +127,40 @@ class VAEAnomaly(nn.Module):
         recon_mu, recon_sigma = self.decoder(z).chunk(2, dim=1)
         recon_sigma = softplus(recon_sigma)
         return recon_mu + recon_sigma * torch.rand_like(recon_sigma)
+
+
+class VAEAnomalyTabular(VAEAnomalyDetection):
+
+    def make_encoder(self, input_size, latent_size):
+        """
+        Simple encoder for tabular data.
+        If you want to feed image to a VAE make another encoder function with Conv2d instead of Linear layers.
+        :param input_size: number of input variables
+        :param latent_size: number of output variables i.e. the size of the latent space since it's the encoder of a VAE
+        :return: The untrained encoder model
+        """
+        return nn.Sequential(
+            nn.Linear(input_size, 500),
+            nn.ReLU(),
+            nn.Linear(500, 200),
+            nn.ReLU(),
+            nn.Linear(200, latent_size * 2)
+            # times 2 because this is the concatenated vector of latent mean and variance
+        )
+
+    def make_decoder(self, latent_size, output_size):
+        """
+        Simple decoder for tabular data.
+        :param latent_size: size of input latent space
+        :param output_size: number of output parameters. Must have the same value of input_size
+        :return: the untrained decoder
+        """
+        return nn.Sequential(
+            nn.Linear(latent_size, 200),
+            nn.ReLU(),
+            nn.Linear(200, 500),
+            nn.ReLU(),
+            nn.Linear(500, output_size * 2)  # times 2 because this is the concatenated vector of reconstructed mean and variance
+        )
 
 

@@ -19,13 +19,53 @@ Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection foll
 - Trained model, parameters and Tensorboard log goes into the folder _run/{id}_ where _{id}_ is an integer from 0 to +inf
 - After the model training run _tensorboard --logdir=run_ to check all the training results
 
+## Make your model
+
+Subclass ```VAEAnomalyDetection``` and define your encoder and decoder like in ```VaeAnomalyTabular```
+
+```python
+class VAEAnomalyTabular(VAEAnomalyDetection):
+
+    def make_encoder(self, input_size, latent_size):
+        """
+        Simple encoder for tabular data.
+        If you want to feed image to a VAE make another encoder function with Conv2d instead of Linear layers.
+        :param input_size: number of input variables
+        :param latent_size: number of output variables i.e. the size of the latent space since it's the encoder of a VAE
+        :return: The untrained encoder model
+        """
+        return nn.Sequential(
+            nn.Linear(input_size, 500),
+            nn.ReLU(),
+            nn.Linear(500, 200),
+            nn.ReLU(),
+            nn.Linear(200, latent_size * 2)
+            # times 2 because this is the concatenated vector of latent mean and variance
+        )
+
+    def make_decoder(self, latent_size, output_size):
+        """
+        Simple decoder for tabular data.
+        :param latent_size: size of input latent space
+        :param output_size: number of output parameters. Must have the same value of input_size
+        :return: the untrained decoder
+        """
+        return nn.Sequential(
+            nn.Linear(latent_size, 200),
+            nn.ReLU(),
+            nn.Linear(200, 500),
+            nn.ReLU(),
+            nn.Linear(500, output_size * 2)  # times 2 because this is the concatenated vector of reconstructed mean and variance
+        )
+```
+
 ## How to make predictions:
 Once the model is trained (suppose for simplicity that it is under _run/0/_ ) just load and predict with this code snippet:
 ```python
 import torch
 
 #load X_test
-model = VAEAnomaly(input_size=50, latent_size=32)
+model = VaeAnomalyTabular(input_size=50, latent_size=32)
 # could load input_size and latent_size also 
 # from run/0/train_config.yaml
 model.load_state_dict(torch.load('run/0/model.pth'))

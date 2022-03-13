@@ -6,7 +6,7 @@ name: Python test
 on:
   push:
     tags-ignore:
-      - *
+      - "*"
     branches:
       - develop
 
