@@ -6,6 +6,7 @@ from torch.distributions import Normal, kl_divergence
 from torch.nn.functional import softplus
 
 
+
 def tabular_encoder(input_size: int, latent_size: int):
     """
     Simple encoder for tabular data.
@@ -41,29 +42,84 @@ def tabular_decoder(latent_size: int, output_size: int):
 
 
 class VAEAnomalyDetection(nn.Module, ABC):
-    def __init__(self, input_size: int, latent_size: int, L=10):
+    """
+    Variational Autoencoder (VAE) for anomaly detection. The model learns a low-dimensional representation of the input
+    data using an encoder-decoder architecture, and uses the learned representation to detect anomalies.
+
+    The model is trained to minimize the Kullback-Leibler (KL) divergence between the learned distribution of the latent
+    variables and the prior distribution (a standard normal distribution). It is also trained to maximize the likelihood
+    of the input data under the learned distribution.
+
+    This implementation uses PyTorch Lightning to simplify training and improve reproducibility.
+    """
+
+    def __init__(self, input_size: int, latent_size: int, L: int = 10, lr: float = 1e-3):
         """
-        :param input_size: Number of input features
-        :param latent_size: Size of the latent space
-        :param L: Number of samples in the latent space (See paper for more details)
+        Initializes the VAEAnomalyDetection model.
+
+        Args:
+            input_size (int): Number of input features.
+            latent_size (int): Size of the latent space.
+            L (int, optional): Number of samples in the latent space to detect the anomaly. Defaults to 10.
+            lr (float, optional): Learning rate. Defaults to 1e-3.
         """
         super().__init__()
         self.L = L
+        self.lr = lr
         self.input_size = input_size
         self.latent_size = latent_size
-        self.encoder = tabular_encoder(input_size, latent_size)
-        self.decoder = tabular_decoder(latent_size, input_size)
+        self.encoder = self.make_encoder(input_size, latent_size)
+        self.decoder = self.make_decoder(latent_size, input_size)
         self.prior = Normal(0, 1)
 
     @abstractmethod
-    def make_encoder(self, input_size, latent_size):
+    def make_encoder(self, input_size: int, latent_size: int) -> nn.Module:
+        """
+        Abstract method to create the encoder network.
+
+        Args:
+            input_size (int): Number of input features.
+            latent_size (int): Size of the latent space.
+
+        Returns:
+            nn.Module: Encoder network.
+        """
         pass
 
     @abstractmethod
-    def make_decoder(self, latent_size, output_size):
+    def make_decoder(self, latent_size: int, output_size: int) -> nn.Module:
+        """
+        Abstract method to create the decoder network.
+
+        Args:
+            latent_size (int): Size of the latent space.
+            output_size (int): Number of output features.
+
+        Returns:
+            nn.Module: Decoder network.
+        """
         pass
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> dict:
+        """
+        Computes the forward pass of the model and returns the loss and other relevant information.
+
+        Args:
+            x (torch.Tensor): Input data. Shape [batch_size, num_features].
+
+        Returns:
+            Dictionary containing:
+            - loss: Total loss.
+            - kl: KL-divergence loss.
+            - recon_loss: Reconstruction loss.
+            - recon_mu: Mean of the reconstructed input.
+            - recon_sigma: Standard deviation of the reconstructed input.
+            - latent_dist: Distribution of the latent space.
+            - latent_mu: Mean of the latent space.
+            - latent_sigma: Standard deviation of the latent space.
+            - z: Sampled latent space.
+
+        """
         pred_result = self.predict(x)
         x = x.unsqueeze(0)  # unsqueeze to broadcast input across sample dimension (L)
         log_lik = Normal(pred_result['recon_mu'], pred_result['recon_sigma']).log_prob(x).mean(
@@ -75,14 +131,20 @@ class VAEAnomalyDetection(nn.Module, ABC):
 
     def predict(self, x) -> dict:
         """
-        :param x: tensor of shape [batch_size, num_features]
-        :return: A dictionary containing prediction i.e.
-        - latent_dist = torch.distributions.Normal instance of latent space
-        - latent_mu = torch.Tensor mu (mean) parameter of latent Normal distribution
-        - latent_sigma = torch.Tensor sigma (std) parameter of latent Normal distribution
-        - recon_mu = torch.Tensor mu (mean) parameter of reconstructed Normal distribution
-        - recon_sigma = torch.Tensor sigma (std) parameter of reconstructed Normal distribution
-        - z = torch.Tensor sampled latent space from latent distribution
+        Compute the output of the VAE. Does not compute the loss compared to the forward method.
+
+        Args:
+            x: Input tensor of shape [batch_size, input_size].
+
+        Returns:
+            Dictionary containing:
+            - latent_dist: Distribution of the latent space.
+            - latent_mu: Mean of the latent space.
+            - latent_sigma: Standard deviation of the latent space.
+            - recon_mu: Mean of the reconstructed input.
+            - recon_sigma: Standard deviation of the reconstructed input.
+            - z: Sampled latent space.
+
         """
         batch_size = len(x)
         latent_mu, latent_sigma = self.encoder(x).chunk(2, dim=1) #both with size [batch_size, latent_size]
@@ -98,18 +160,33 @@ class VAEAnomalyDetection(nn.Module, ABC):
                     latent_sigma=latent_sigma, recon_mu=recon_mu,
                     recon_sigma=recon_sigma, z=z)
 
-    def is_anomaly(self, x, alpha=0.05):
+    def is_anomaly(self, x: torch.Tensor, alpha: float = 0.05) -> torch.Tensor:
         """
-
-        :param x:
-        :param alpha: Anomaly threshold (see paper for more details)
-        :return: Return a vector of boolean with shape [x.shape[0]]
-                 which is true when an element is considered an anomaly
+        Determines if input samples are anomalous based on a given threshold.
+        
+        Args:
+            x: Input tensor of shape (batch_size, num_features).
+            alpha: Anomaly threshold. Values with probability lower than alpha are considered anomalous.
+        
+        Returns:
+            A binary tensor of shape (batch_size,) where `True` represents an anomalous sample and `False` represents a 
+            normal sample.
         """
         p = self.reconstructed_probability(x)
         return p < alpha
 
-    def reconstructed_probability(self, x):
+    def reconstructed_probability(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Computes the probability density of the input samples under the learned
+        distribution of reconstructed data.
+
+        Args:
+            x: Input data tensor of shape (batch_size, num_features).
+
+        Returns:
+            A tensor of shape (batch_size,) containing the probability densities of
+            the input samples under the learned distribution of reconstructed data.
+        """
         with torch.no_grad():
             pred = self.predict(x)
         recon_dist = Normal(pred['recon_mu'], pred['recon_sigma'])
@@ -117,16 +194,30 @@ class VAEAnomalyDetection(nn.Module, ABC):
         p = recon_dist.log_prob(x).exp().mean(dim=0).mean(dim=-1)  # vector of shape [batch_size]
         return p
 
-    def generate(self, batch_size: int=1) -> torch.Tensor:
+    def generate(self, batch_size: int = 1) -> torch.Tensor:
         """
-        Sample from prior distribution, feed into decoder and get in output recostructed samples
-        :param batch_size:
-        :return: Generated samples
+        Generates a batch of samples from the learned prior distribution.
+
+        Args:
+            batch_size: Number of samples to generate.
+
+        Returns:
+            A tensor of shape (batch_size, num_features) containing the generated
+            samples.
         """
         z = self.prior.sample((batch_size, self.latent_size))
         recon_mu, recon_sigma = self.decoder(z).chunk(2, dim=1)
         recon_sigma = softplus(recon_sigma)
         return recon_mu + recon_sigma * torch.rand_like(recon_sigma)
+    
+    
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        loss = self.forward(x)
+        return loss
+
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=self.lr)
 
 
 class VAEAnomalyTabular(VAEAnomalyDetection):

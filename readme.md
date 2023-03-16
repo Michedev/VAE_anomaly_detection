@@ -8,17 +8,37 @@ Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection foll
  <br>
 
 ## How to install
-
+1. _pip_ package containing the model and training_step only
 `pip install vae-anomaly-detection`
 
-## How To Train a Model
+1. Use repository
+   1. Clone the repo
 
-- Define your dataset into dataset.py and put in output into the function _get_dataset_
-- Eventually change encoder and decoder inside _VAE.py_ to fits your data layout
-- Run in a terminal _python train.py_ and specify required at least _--input-size_ (pass -h to see all optional parameters)
-- Trained model, parameters and Tensorboard log goes into the folder _run/{id}_ where _{id}_ is an integer from 0 to +inf
-- After the model training run _tensorboard --logdir=run_ to check all the training results
+`git clone git@github.com:Michedev/VAE_anomaly_detection.git`
 
+   2. Install anaconda and install anaconda-project package if you use miniconda
+
+   `conda install anaconda-project`
+
+   3. Install the environment
+
+   `anaconda-project prepare`
+
+   4. Run the train
+
+   `anaconda-project run train`
+
+   To know all the train parameters run `anaconda-project run train --help`
+
+
+
+
+This version contains the model and the training procedure
+
+## How To Train your Model
+
+- Define your dataset into dataset.py and overwrite it in `train.py`
+- Subclass VAEAnomalyDetection and define the methods `make_encoder` and `make_decoder`. The output of `make_encoder` should be a flat vector while the output of `make_decoder should have the same shape of the input.
 ## Make your model
 
 Subclass ```VAEAnomalyDetection``` and define your encoder and decoder like in ```VaeAnomalyTabular```

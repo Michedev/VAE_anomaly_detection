@@ -1,10 +1,10 @@
 import torch
-from vae_anomaly_detection.VAE import VAEAnomalyTabular as PytorchVAEAnomaly
+from model import VAEAnomalyTabular
 
 
 def test_pytorch_anomaly_detection():
     batch_size = 32
-    model = PytorchVAEAnomaly(100, 32, L=2)
+    model = VAEAnomalyTabular(100, 32, L=2)
     batch = torch.rand(batch_size, 100)
     batch_anomaly = model.is_anomaly(batch, alpha=0.05)
     assert batch_anomaly.shape == (32,)
@@ -13,7 +13,7 @@ def test_pytorch_anomaly_detection():
 
 def test_pytorch_prediction():
     batch_size = 32
-    model = PytorchVAEAnomaly(100, 32, L=2)
+    model = VAEAnomalyTabular(100, 32, L=2)
     batch = torch.rand(batch_size, 100)
     reconstructed_probability = model.reconstructed_probability(batch)
     assert reconstructed_probability.shape == (32,)
