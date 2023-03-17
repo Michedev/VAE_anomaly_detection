@@ -4,44 +4,10 @@ import torch
 from torch import nn
 from torch.distributions import Normal, kl_divergence
 from torch.nn.functional import softplus
+import pytorch_lightning as pl
 
 
-
-def tabular_encoder(input_size: int, latent_size: int):
-    """
-    Simple encoder for tabular data.
-    If you want to feed image to a VAE make another encoder function with Conv2d instead of Linear layers.
-    :param input_size: number of input variables
-    :param latent_size: number of output variables i.e. the size of the latent space since it's the encoder of a VAE
-    :return: The untrained encoder model
-    """
-    return nn.Sequential(
-        nn.Linear(input_size, 500),
-        nn.ReLU(),
-        nn.Linear(500, 200),
-        nn.ReLU(),
-        nn.Linear(200, latent_size * 2)  # times 2 because this is the concatenated vector of latent mean and variance
-    )
-
-
-def tabular_decoder(latent_size: int, output_size: int):
-    """
-    Simple decoder for tabular data.
-    :param latent_size: size of input latent space
-    :param output_size: number of output parameters. Must have the same value of input_size
-    :return: the untrained decoder
-    """
-    return nn.Sequential(
-        nn.Linear(latent_size, 200),
-        nn.ReLU(),
-        nn.Linear(200, 500),
-        nn.ReLU(),
-        nn.Linear(500, output_size * 2)
-        # times 2 because this is the concatenated vector of reconstructed mean and variance
-    )
-
-
-class VAEAnomalyDetection(nn.Module, ABC):
+class VAEAnomalyDetection(pl.LightningModule, ABC):
     """
     Variational Autoencoder (VAE) for anomaly detection. The model learns a low-dimensional representation of the input
     data using an encoder-decoder architecture, and uses the learned representation to detect anomalies.
@@ -53,7 +19,7 @@ class VAEAnomalyDetection(nn.Module, ABC):
     This implementation uses PyTorch Lightning to simplify training and improve reproducibility.
     """
 
-    def __init__(self, input_size: int, latent_size: int, L: int = 10, lr: float = 1e-3):
+    def __init__(self, input_size: int, latent_size: int, L: int = 10, lr: float = 1e-3, log_steps: int = 1_000):
         """
         Initializes the VAEAnomalyDetection model.
 
@@ -62,6 +28,7 @@ class VAEAnomalyDetection(nn.Module, ABC):
             latent_size (int): Size of the latent space.
             L (int, optional): Number of samples in the latent space to detect the anomaly. Defaults to 10.
             lr (float, optional): Learning rate. Defaults to 1e-3.
+            log_steps (int, optional): Number of steps between each logging. Defaults to 1_000.
         """
         super().__init__()
         self.L = L
@@ -71,6 +38,7 @@ class VAEAnomalyDetection(nn.Module, ABC):
         self.encoder = self.make_encoder(input_size, latent_size)
         self.decoder = self.make_decoder(latent_size, input_size)
         self.prior = Normal(0, 1)
+        self.log_steps = log_steps
 
     @abstractmethod
     def make_encoder(self, input_size: int, latent_size: int) -> nn.Module:
@@ -214,11 +182,23 @@ class VAEAnomalyDetection(nn.Module, ABC):
     def training_step(self, batch, batch_idx):
         x, y = batch
         loss = self.forward(x)
+        if self.global_step % self.log_steps == 0:
+            self.logger.experiment.add_scalar('train_loss', loss['loss'], self.global_step)
+            self.logger.experiment.add_scalar('train_kl', loss['kl'], self.global_step)
+            self.logger.experiment.add_scalar('train_recon_loss', loss['recon_loss'], self.global_step)
+            self._log_norm()
+
         return loss
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
 
+
+    def _log_norm(self):
+        norm1 = sum(p.norm(1) for p in self.parameters())
+        norm1_grad = sum(p.grad.norm(1) for p in self.parameters() if p.grad is not None)
+        self.log('norm1_params', norm1)
+        self.log('norm1_grad', norm1_grad)
 
 class VAEAnomalyTabular(VAEAnomalyDetection):
 
