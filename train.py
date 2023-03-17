@@ -1,6 +1,6 @@
 import argparse
 from pytorch_lightning import Trainer
-
+from pytorch_lightning.callbacks import ModelCheckpoint
 import torch
 import yaml
 from path import Path
@@ -63,8 +63,21 @@ def main():
     train_set = rand_dataset()  # set here your dataset
     train_dloader = DataLoader(train_set, args.batch_size)
 
-    trainer = Trainer()
-    trainer.fit(model, train_dloader)
+    val_dataset = rand_dataset()  # set here your dataset
+    val_dloader = DataLoader(val_dataset, args.batch_size)
+
+    checkpoint = ModelCheckpoint(
+        filepath=experiment_folder / '{epoch:02d}-{val_loss:.2f}',
+        save_top_k=1,
+        verbose=True,
+        monitor='val_loss',
+        mode='min',
+        prefix=''
+        save_last=True,
+    )
+
+    trainer = Trainer(callbacks=[checkpoint],)
+    trainer.fit(model, train_dloader, val_dloader)
 
 
 if __name__ == '__main__':
