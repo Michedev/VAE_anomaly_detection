@@ -1,10 +1,15 @@
 
 name: Python release on pypi
 
+
 on:
   release:
-    types:
-      - released
+    types: [published]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0'  # weekly
+
+
 
 jobs:
   build:
@@ -17,13 +22,17 @@ jobs:
         poetry-version: [ 1.1.13 ]
         os: [ubuntu-20.04]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Run image
-        uses: abatilo/actions-poetry@v2.0.0
+      - name: Assemble python package folder
+        run: |
+            mv model/ vae_anomaly_detection/
+      - name: Build package
+        run: python -m build
+      - name: Publish package
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          poetry-version: ${{ matrix.poetry-version }}
-      - name: poetry publish on pypi
-        run: poetry publish --build --username=__token__ --password=${{secrets.PYPI_PASSWORD}}
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}

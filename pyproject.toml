@@ -1,40 +1,52 @@
-[tool.poetry]
+# Note: This pyproject.toml file is intended to publish model/ folder as pip package
+#       and is not intended to be used for the whole project. For the project, use anaconda-project.yml
+[build-system]
+requires = ["setuptools", "setuptools-scm[toml]"]
+build-backend = "setuptools.build_meta"
+
+
+
+[project]
 name = "vae_anomaly_detection"
-version = "1.1.0"
+version = "2.0.0"
+requires-python = ">=3.6.2,<3.10"
 description = "Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection following the paper \"Variational Autoencoder based Anomaly Detection using Reconstruction Probability by Jinwon An, Sungzoon Cho\""
 authors = ["Michele De Vita <mik3dev@gmail.com>"]
 homepage = "https://github.com/Michedev/VAE_anomaly_detection"
 repository = "https://github.com/Michedev/VAE_anomaly_detection"
 classifiers = [
-    'Development Status :: 5 - Production/Stable',
-    'Topic :: Scientific/Engineering :: Artificial Intelligence',
-    'Programming Language :: Python :: 3.9',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.6',
-]
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+    ]
 keywords = ["vae", "anomaly detection", "deep learning", "pytorch"]
 license = "MIT"
 
-[tool.poetry.dependencies]
-python = ">=3.6.2<3.10"
-path = ">=15.0"
-torch = ">=1.8.0%2Bcpu"
-pytorch-ignite = ">=0.4"
-PyYAML = ">=5.0"
-tqdm = ">=4.0"
-tensorboard = ">=0.20"
-numpy = ">= 1.18"
-
-[tool.poetry.dev-dependencies]
-pytest = ">=7.0"
-
-[[tool.poetry.source]]
-name = "torch-repo"
-url = "https://eternalphane.github.io/pytorch-pypi/torch/"  # hacky way to install pytorch
-secondary = true
+dependencies = [
+"path>=15.0",
+"torch>=1.8",
+"pytorch-lightning>=1.9",
+"PyYAML>=5.0",
+"tqdm>=4.0",
+"tensorboard>=0.20",
+"numpy>= 1.18",
+]
 
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+
+[tool.setuptools.packages.find]
+where = ["vae_anomaly_detection"]
