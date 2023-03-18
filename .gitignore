@@ -1,5 +1,9 @@
 envs/
 .vscode/
+.idea
+dist/
+poetry.lock
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
