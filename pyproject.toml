@@ -11,7 +11,7 @@ name = "vae_anomaly_detection"
 version = "2.0.0"
 requires-python = ">=3.6.2,<3.11"
 description = "Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection following the paper \"Variational Autoencoder based Anomaly Detection using Reconstruction Probability by Jinwon An, Sungzoon Cho\""
-authors = ["Michele De Vita <mik3dev@gmail.com>"]
+authors = [{name="Michele De Vita", email="mik3dev@gmail.com"}]
 homepage = "https://github.com/Michedev/VAE_anomaly_detection"
 repository = "https://github.com/Michedev/VAE_anomaly_detection"
 classifiers = [
@@ -30,6 +30,7 @@ classifiers = [
     ]
 keywords = ["vae", "anomaly detection", "deep learning", "pytorch"]
 license = {text = "MIT"}
+readme = "README.md"
 
 dependencies = [
 "path>=15.0",
