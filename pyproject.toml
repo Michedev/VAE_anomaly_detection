@@ -29,7 +29,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules"
     ]
 keywords = ["vae", "anomaly detection", "deep learning", "pytorch"]
-license = "MIT"
+license = {text = "MIT"}
 
 dependencies = [
 "path>=15.0",
