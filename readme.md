@@ -1,24 +1,50 @@
 # Variational autoencoder for anomaly detection
 
+![PyPI](https://img.shields.io/pypi/v/vae-anomaly-detection?style=flat-square)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/vae-anomaly-detection?style=flat-square)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Michedev/VAE_anomaly_detection/Python%20test?style=flat-square)
+![PyPI - License](https://img.shields.io/pypi/l/vae-anomaly-detection?style=flat-square)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/vae-anomaly-detection?style=flat-square)
 
 Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection following the paper
  [Variational Autoencoder based Anomaly Detection using Reconstruction Probability by Jinwon An, Sungzoon Cho](https://www.semanticscholar.org/paper/Variational-Autoencoder-based-Anomaly-Detection-An-Cho/061146b1d7938d7a8dae70e3531a00fceb3c78e8)
  <br>
 
 ## How to install
+1. _pip_ package containing the model and training_step only 
+   
+        pip install vae-anomaly-detection
 
-`pip install vae-anomaly-detection`
 
-## How To Train a Model
+2. Use repository
 
-- Define your dataset into dataset.py and put in output into the function _get_dataset_
-- Eventually change encoder and decoder inside _VAE.py_ to fits your data layout
-- Run in a terminal _python train.py_ and specify required at least _--input-size_ (pass -h to see all optional parameters)
-- Trained model, parameters and Tensorboard log goes into the folder _run/{id}_ where _{id}_ is an integer from 0 to +inf
-- After the model training run _tensorboard --logdir=run_ to check all the training results
 
+   a. Clone the repo
+
+        git clone git@github.com:Michedev/VAE_anomaly_detection.git
+
+   b. Install anaconda and install anaconda-project package if you use miniconda
+
+        conda install anaconda-project
+
+   c. Install the environment
+
+        anaconda-project prepare
+
+   d. Run the train
+
+        anaconda-project run train
+
+   To know all the train parameters run `anaconda-project run train --help`
+
+
+
+
+This version contains the model and the training procedure
+
+## How To Train your Model
+
+- Define your dataset into dataset.py and overwrite the line `train_set = rand_dataset()  # set here your dataset` in `train.py`
+- Subclass VAEAnomalyDetection and define the methods `make_encoder` and `make_decoder`. The output of `make_encoder` should be a flat vector while the output of `make_decoder should have the same shape of the input.
 ## Make your model
 
 Subclass ```VAEAnomalyDetection``` and define your encoder and decoder like in ```VaeAnomalyTabular```
@@ -60,15 +86,12 @@ class VAEAnomalyTabular(VAEAnomalyDetection):
 ```
 
 ## How to make predictions:
-Once the model is trained (suppose for simplicity that it is under _run/0/_ ) just load and predict with this code snippet:
+Once the model is trained (suppose for simplicity that it is under _saved_models/{train-datetime}/_ ) just load and predict with this code snippet:
 ```python
 import torch
 
 #load X_test
-model = VaeAnomalyTabular(input_size=50, latent_size=32)
-# could load input_size and latent_size also 
-# from run/0/train_config.yaml
-model.load_state_dict(torch.load('run/0/model.pth'))
+model = VaeAnomalyTabular.load_checkpoint('saved_models/2022-01-06_15-12-23/last.ckpt')
 # load saved parameters from a run
 outliers = model.is_anomaly(X_test)
 ```
