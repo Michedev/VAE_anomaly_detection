@@ -1,7 +1,9 @@
 # Variational autoencoder for anomaly detection
 
+![PyPI](https://img.shields.io/pypi/v/vae-anomaly-detection?style=flat-square)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/vae-anomaly-detection?style=flat-square)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Michedev/VAE_anomaly_detection/Python%20test?style=flat-square)
+![PyPI - License](https://img.shields.io/pypi/l/vae-anomaly-detection?style=flat-square)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/vae-anomaly-detection?style=flat-square)
 
 Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection following the paper
  [Variational Autoencoder based Anomaly Detection using Reconstruction Probability by Jinwon An, Sungzoon Cho](https://www.semanticscholar.org/paper/Variational-Autoencoder-based-Anomaly-Detection-An-Cho/061146b1d7938d7a8dae70e3531a00fceb3c78e8)
