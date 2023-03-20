@@ -186,8 +186,6 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
             self.log('train/loss', loss['loss'])
             self.log('train/loss_kl', loss['kl'], prog_bar=False)
             self.log('train/loss_recon', loss['recon_loss'], prog_bar=False)
-            self._log_norm()
-
         return loss
     
 
@@ -202,9 +200,17 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)
+    
+    def on_before_optimizer_step(self, optimizer: torch.optim.Optimizer, optimizer_idx: int) -> None:
+        if self.global_step % self.log_steps == 0:
+            self._log_norm()
+        return super().on_before_optimizer_step(optimizer, optimizer_idx)
 
 
     def _log_norm(self):
+        """
+        It logs the L1 norm of the parameters and the gradients of the parameters
+        """
         norm1 = sum(p.norm(1) for p in self.parameters())
         norm1_grad = sum(p.grad.norm(1) for p in self.parameters() if p.grad is not None)
         self.log('norm1_params', norm1)
