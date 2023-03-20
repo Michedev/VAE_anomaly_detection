@@ -214,11 +214,13 @@ class VAEAnomalyTabular(VAEAnomalyDetection):
 
     def make_encoder(self, input_size, latent_size):
         """
-        Simple encoder for tabular data.
-        If you want to feed image to a VAE make another encoder function with Conv2d instead of Linear layers.
-        :param input_size: number of input variables
-        :param latent_size: number of output variables i.e. the size of the latent space since it's the encoder of a VAE
-        :return: The untrained encoder model
+        Simple encoder for tabular data. The MLP has 3 layers with 500, 200 and latent_size * 2 neurons. Activation function is ReLU.
+        
+        Args:
+            input_size: number of input parameters
+            latent_size: size of latent space
+        Returns:
+            the encoder
         """
         return nn.Sequential(
             nn.Linear(input_size, 500),
@@ -231,10 +233,13 @@ class VAEAnomalyTabular(VAEAnomalyDetection):
 
     def make_decoder(self, latent_size, output_size):
         """
-        Simple decoder for tabular data.
-        :param latent_size: size of input latent space
-        :param output_size: number of output parameters. Must have the same value of input_size
-        :return: the untrained decoder
+        Simple decoder for tabular data. The MLP has 3 layers with 200, 500 and output_size * 2 neurons. Activation function is ReLU.
+        
+        Args:
+            latent_size: size of latent space
+            output_size: number of output parameters
+        Returns:
+            the decoder
         """
         return nn.Sequential(
             nn.Linear(latent_size, 200),
