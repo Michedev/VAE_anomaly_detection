@@ -10,29 +10,39 @@ Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection foll
  <br>
 
 ## How to install
-1. _pip_ package containing the model and training_step only 
+
+#### Python package way
+ _pip_ package containing the model and training_step only 
    
         pip install vae-anomaly-detection
 
 
-2. Use repository
+#### Hack this repository
 
 
    a. Clone the repo
 
         git clone git@github.com:Michedev/VAE_anomaly_detection.git
 
-   b. Install anaconda and install anaconda-project package if you use miniconda
+   b. Install hatch
 
-        conda install anaconda-project
+        pip install hatch
 
-   c. Install the environment
+   c. Make the environment with torch gpu support
 
-        anaconda-project prepare
+        hatch env create
+      
+      or with cpu support
+
+        hatch env create cpu
 
    d. Run the train
 
-        anaconda-project run train
+        hatch run train
+
+      or in cpu
+          
+        hatch run cpu:train
 
    To know all the train parameters run `anaconda-project run train --help`
 
@@ -95,3 +105,33 @@ model = VaeAnomalyTabular.load_checkpoint('saved_models/2022-01-06_15-12-23/last
 # load saved parameters from a run
 outliers = model.is_anomaly(X_test)
 ```
+
+
+## train.py help
+
+        usage: train.py [-h] --input-size INPUT_SIZE --latent-size LATENT_SIZE
+                        [--num-resamples NUM_RESAMPLES] [--epochs EPOCHS] [--batch-size BATCH_SIZE]
+                        [--device {cpu,gpu,tpu}] [--lr LR] [--no-progress-bar]
+                        [--steps-log-loss STEPS_LOG_LOSS]
+                        [--steps-log-norm-params STEPS_LOG_NORM_PARAMS]
+
+        options:
+        -h, --help            show this help message and exit
+        --input-size INPUT_SIZE, -i INPUT_SIZE
+                                Number of input features. In 1D case it is the vector length, in 2D
+                                case it is the number of channels
+        --latent-size LATENT_SIZE, -l LATENT_SIZE
+                                Size of the latent space
+        --num-resamples NUM_RESAMPLES, -L NUM_RESAMPLES
+                                Number of resamples in the latent distribution during training
+        --epochs EPOCHS, -e EPOCHS
+                                Number of epochs to train for
+        --batch-size BATCH_SIZE, -b BATCH_SIZE
+        --device {cpu,gpu,tpu}, -d {cpu,gpu,tpu}, --accelerator {cpu,gpu,tpu}
+                                Device to use for training. Can be cpu, gpu or tpu
+        --lr LR               Learning rate
+        --no-progress-bar
+        --steps-log-loss STEPS_LOG_LOSS
+                                Number of steps between each loss logging
+        --steps-log-norm-params STEPS_LOG_NORM_PARAMS
+                                Number of steps between each model parameters logging
