@@ -57,7 +57,6 @@ dependencies = [
     "tensorboard",
     "numpy",
     "torchvision",
-    "pytest"
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -73,10 +72,23 @@ dependencies = [
     "tensorboard",
     "numpy",
     "torchvision",
-    "pytest"
 ]
 
 [tool.hatch.envs.cpu.env-vars]
+PIP_EXTRA_INDEX_URL = "https://download.pytorch.org/whl/cpu"
+
+
+[tool.hatch.envs.test]
+dependencies = [
+    "torch>=1.8",
+    "pytorch-lightning",
+    "path",
+    "tensorboard",
+    "numpy",
+    "torchvision",
+]
+
+[tool.hatch.envs.test.env-vars]
 PIP_EXTRA_INDEX_URL = "https://download.pytorch.org/whl/cpu"
 
 

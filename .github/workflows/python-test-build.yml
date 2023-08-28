@@ -19,7 +19,7 @@ jobs:
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
     env:
-      HATCH_ENV: cpu
+      HATCH_ENV: test
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
