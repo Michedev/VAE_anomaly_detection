@@ -28,9 +28,9 @@ jobs:
       - name: Install hatch
         run: pip install hatch
       - name: Install dependencies
-        run: hatch env create
+        run: hatch env create test
       -  name: Test
-         run: hatch run pytest
+         run: hatch run test:pytest
       - name: rename folder
         run: mv model/ vae_anomaly_detection/
       - name: Build

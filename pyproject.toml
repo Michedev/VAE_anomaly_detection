@@ -79,6 +79,7 @@ PIP_EXTRA_INDEX_URL = "https://download.pytorch.org/whl/cpu"
 
 
 [tool.hatch.envs.test]
+python = "*"
 dependencies = [
     "torch>=1.8",
     "pytorch-lightning",
@@ -86,10 +87,8 @@ dependencies = [
     "tensorboard",
     "numpy",
     "torchvision",
+    "pytest",
 ]
-
-[[tool.hatch.envs.test.matrix]]
-python = ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"]
 
 
 [tool.hatch.envs.test.env-vars]
