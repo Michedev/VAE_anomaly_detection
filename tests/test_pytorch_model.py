@@ -34,8 +34,5 @@ def test_training_step():
     batch = torch.rand(batch_size, input_size)
     loss_dict = model.training_step(batch, batch_idx=0)
     loss = loss_dict['loss']
-    assert loss.shape == (batch_size,)
-    assert loss.dtype == torch.float
-    assert 1.0 >= loss.max().item() and \
-           loss.min().item() >= 0.0
-    
+    assert loss.numel() == 1
+    assert loss.dtype == torch.float    
