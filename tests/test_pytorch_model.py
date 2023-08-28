@@ -32,9 +32,10 @@ def test_training_step():
     latent_size = 32
     model = VAEAnomalyTabular(input_size, latent_size, L=2)
     batch = torch.rand(batch_size, input_size)
-    reconstructed_probability = model.training_step(batch, batch_idx=0)
-    assert reconstructed_probability.shape == (batch_size,)
-    assert reconstructed_probability.dtype == torch.float
-    assert 1.0 >= reconstructed_probability.max().item() and \
-           reconstructed_probability.min().item() >= 0.0
+    loss_dict = model.training_step(batch, batch_idx=0)
+    loss = loss_dict['loss']
+    assert loss.shape == (batch_size,)
+    assert loss.dtype == torch.float
+    assert 1.0 >= loss.max().item() and \
+           loss.min().item() >= 0.0
     
