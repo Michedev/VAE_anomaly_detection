@@ -80,5 +80,5 @@ dependencies = [
 PIP_EXTRA_INDEX_URL = "https://download.pytorch.org/whl/cpu"
 
 
-[tool.setuptools.packages.find]
-where = ["vae_anomaly_detection"]
+[tool.hatch.build]
+include = ["vae_anomaly_detection"]

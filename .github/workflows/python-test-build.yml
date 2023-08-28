@@ -18,6 +18,8 @@ jobs:
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10", "3.11"]
         os: [ubuntu-20.04]
     runs-on: ${{ matrix.os }}
+    env:
+      HATCH_ENV: cpu
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -26,8 +28,10 @@ jobs:
       - name: Install hatch
         run: pip install hatch
       - name: Install dependencies
-        run: pip install --extra-index-url https://download.pytorch.org/whl/cpu -r pyproject.toml .[dev]
+        run: hatch env create
       -  name: Test
-         run: python -m pytest
+         run: hatch run pytest
+      - name: rename folder
+        run: mv model/ vae_anomaly_detection/
       - name: Build
         run: hatch build
