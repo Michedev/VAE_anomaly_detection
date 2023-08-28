@@ -72,7 +72,7 @@ def main():
         verbose=True,
         monitor='val_loss',
         mode='min',
-        prefix=''
+        prefix='',
         save_last=True,
     )
 
