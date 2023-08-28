@@ -79,6 +79,7 @@ PIP_EXTRA_INDEX_URL = "https://download.pytorch.org/whl/cpu"
 
 
 [tool.hatch.envs.test]
+python = "python3"
 dependencies = [
     "torch>=1.8",
     "pytorch-lightning",
