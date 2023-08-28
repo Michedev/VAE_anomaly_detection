@@ -15,22 +15,26 @@ ROOT = Path(__file__).parent
 SAVED_MODELS = ROOT / 'saved_models'
 
 
-
-def get_folder_run() -> Path:
+def make_folder_run() -> Path:
     """
-    Get the folder where to store the experiment
+    Get the folder where to store the experiment. 
+    The folder is named with the current date and time.
     
     Returns:
-        Path: the path to the folder
+        Path: the path to the folder where to store the experiment
     """
     checkpoint_folder = SAVED_MODELS / datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     checkpoint_folder.makedirs_p()
     return checkpoint_folder
 
 
-
-
 def get_args() -> argparse.Namespace:
+    """
+    Parse command line arguments
+    
+    Returns:
+        argparse.Namespace: the parsed arguments
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('--input-size', '-i', type=int, required=True, dest='input_size', help='Number of input features. In 1D case it is the vector length, in 2D case it is the number of channels')
     parser.add_argument('--latent-size', '-l', type=int, required=True, dest='latent_size', help='Size of the latent space')
@@ -47,10 +51,14 @@ def get_args() -> argparse.Namespace:
 
     return parser.parse_args()
 
+
 def main():
+    """
+    Main function to train the VAE model
+    """
     args = get_args()
     print(args)
-    experiment_folder = get_folder_run()
+    experiment_folder = make_folder_run()
 
     # copy model folder into experiment folder
     ROOT.joinpath('model').copytree(experiment_folder / 'model')
