@@ -22,20 +22,11 @@ jobs:
         run: |
             mv model/ vae_anomaly_detection/
       - name: Install pypa/hatch
-        run: >-
-          python -m
-          pip install
-          hatch
-          --user
+        run: pip install hatch
       - name: Build a binary wheel and a source tarball
-        run: >-
-          python -m
-          build
-          --sdist
-          --wheel
-          --outdir dist/      
+        run: hatch build
       - name: Publish distribution 📦 to PyPI
-        run: python -m hatch publish
+        run: hatch publish
         env:
           HATCH_INDEX_USER: __token__
           HATCH_INDEX_AUTH: ${{ secrets.PYPI_PASSWORD }}
