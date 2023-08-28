@@ -25,13 +25,13 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install hatch
+      - name: Install Hatch 🥚
         run: pip install hatch
       - name: Install dependencies
         run: hatch env create test
-      -  name: Test
+      -  name: Test with pytest
          run: hatch run test:pytest
       - name: rename folder
         run: mv model/ vae_anomaly_detection/
-      - name: Build
+      - name: Build package 📦
         run: hatch build
