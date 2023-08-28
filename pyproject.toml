@@ -79,7 +79,7 @@ PIP_EXTRA_INDEX_URL = "https://download.pytorch.org/whl/cpu"
 
 
 [tool.hatch.envs.test]
-python = ">=3.6.2,<=3.11"
+python = "*"
 dependencies = [
     "torch>=1.8",
     "pytorch-lightning",
@@ -88,6 +88,7 @@ dependencies = [
     "numpy",
     "torchvision",
 ]
+
 
 [tool.hatch.envs.test.env-vars]
 PIP_EXTRA_INDEX_URL = "https://download.pytorch.org/whl/cpu"
