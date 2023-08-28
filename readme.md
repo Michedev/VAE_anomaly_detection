@@ -22,27 +22,27 @@ Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection foll
 
    a. Clone the repo
 
-        git clone git@github.com:Michedev/VAE_anomaly_detection.git
+    git clone git@github.com:Michedev/VAE_anomaly_detection.git
 
    b. Install hatch
 
-        pip install hatch
+    pip install hatch
 
    c. Make the environment with torch gpu support
 
-        hatch env create
+    hatch env create
       
-      or with cpu support
+or with cpu support
 
-        hatch env create cpu
+    hatch env create cpu
 
    d. Run the train
 
-        hatch run train
+    hatch run train
 
-      or in cpu
+or in cpu
           
-        hatch run cpu:train
+    hatch run cpu:train
 
    To know all the train parameters run `anaconda-project run train --help`
 
