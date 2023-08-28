@@ -26,7 +26,7 @@ jobs:
       - name: Install hatch
         run: pip install hatch
       - name: Install dependencies
-        run: pip install --extra-index-url https://download.pytorch.org/whl/cpu -r pyproject.toml --extras dev
+        run: pip install --extra-index-url https://download.pytorch.org/whl/cpu -r pyproject.toml .[dev]
       -  name: Test
          run: python -m pytest
       - name: Build
