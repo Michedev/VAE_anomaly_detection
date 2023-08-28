@@ -14,7 +14,7 @@ Pytorch/TF1 implementation of Variational AutoEncoder for anomaly detection foll
 #### Python package way
  _pip_ package containing the model and training_step only 
    
-        pip install vae-anomaly-detection
+    pip install vae-anomaly-detection
 
 
 #### Hack this repository
@@ -44,7 +44,7 @@ or in cpu
           
     hatch run cpu:train
 
-   To know all the train parameters run `anaconda-project run train --help`
+   To know all the train parameters run `hatch run train --help`
 
 
 
