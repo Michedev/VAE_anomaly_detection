@@ -80,7 +80,6 @@ def main():
         verbose=True,
         monitor='val_loss',
         mode='min',
-        prefix='',
         save_last=True,
     )
 
