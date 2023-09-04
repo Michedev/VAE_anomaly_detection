@@ -114,6 +114,7 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
             - z: Sampled latent space.
 
         """
+        x = x[0]
         batch_size = len(x)
         latent_mu, latent_sigma = self.encoder(x).chunk(2, dim=1) #both with size [batch_size, latent_size]
         latent_sigma = softplus(latent_sigma)
