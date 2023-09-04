@@ -196,9 +196,9 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
     def validation_step(self, batch, batch_idx):
         x = batch
         loss = self.forward(x)
-        self.log('val/loss_epoch', loss['loss'], on_epoch=True)
-        self.log('val_kl', loss['kl'], self.global_step)
-        self.log('val_recon_loss', loss['recon_loss'], self.global_step)
+        self.log('val_loss', loss['loss'], on_epoch=True)
+        self.log('val_kl', loss['kl'])
+        self.log('val_recon_loss', loss['recon_loss'])
 
         return loss
 
