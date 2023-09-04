@@ -89,7 +89,8 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
 
         """
         pred_result = self.predict(x)
-        x = x[0]
+        if isinstance(x, list):
+            x = x[0]
         x = x.unsqueeze(0)  # unsqueeze to broadcast input across sample dimension (L)
         log_lik = Normal(pred_result['recon_mu'], pred_result['recon_sigma']).log_prob(x).mean(
             dim=0)  # average over sample dimension
@@ -115,7 +116,8 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
             - z: Sampled latent space.
 
         """
-        x = x[0]
+        if isinstance(x, list):
+            x = x[0]
         batch_size = len(x)
         latent_mu, latent_sigma = self.encoder(x).chunk(2, dim=1) #both with size [batch_size, latent_size]
         latent_sigma = softplus(latent_sigma)
