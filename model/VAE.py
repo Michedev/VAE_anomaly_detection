@@ -89,6 +89,7 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
 
         """
         pred_result = self.predict(x)
+        x = x[0]
         x = x.unsqueeze(0)  # unsqueeze to broadcast input across sample dimension (L)
         log_lik = Normal(pred_result['recon_mu'], pred_result['recon_sigma']).log_prob(x).mean(
             dim=0)  # average over sample dimension
