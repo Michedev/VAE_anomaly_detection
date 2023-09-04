@@ -83,7 +83,7 @@ def main():
         save_last=True,
     )
 
-    trainer = Trainer(callbacks=[checkpoint],)
+    trainer = Trainer(callbacks=[checkpoint], max_epochs=args.epochs)
     trainer.fit(model, train_dloader, val_dloader)
 
 
