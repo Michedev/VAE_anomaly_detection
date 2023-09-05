@@ -75,7 +75,8 @@ def main():
     val_dloader = DataLoader(val_dataset, args.batch_size)
 
     checkpoint = ModelCheckpoint(
-        dirpath=experiment_folder / '{epoch:02d}-{val_loss:.2f}',
+        dirpath=experiment_folder,
+        filename='{epoch:02d}-{val_loss:.2f}',
         save_top_k=1,
         verbose=True,
         monitor='val_loss',
