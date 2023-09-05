@@ -64,7 +64,8 @@ def main():
     ROOT.joinpath('model').copytree(experiment_folder / 'model')
 
     with open(experiment_folder / 'config.yaml', 'w') as f:
-        yaml.dump(args, f)
+        # save args to yaml file without the header line
+        yaml.dump(vars(args), f, default_flow_style=False)
 
     model = VAEAnomalyTabular(args.input_size, args.latent_size, args.num_resamples, lr=args.lr)
 
