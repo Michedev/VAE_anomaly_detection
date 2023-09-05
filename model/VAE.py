@@ -89,6 +89,8 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
 
         """
         pred_result = self.predict(x)
+        if isinstance(x, list):
+            x = x[0]
         x = x.unsqueeze(0)  # unsqueeze to broadcast input across sample dimension (L)
         log_lik = Normal(pred_result['recon_mu'], pred_result['recon_sigma']).log_prob(x).mean(
             dim=0)  # average over sample dimension
@@ -114,6 +116,8 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
             - z: Sampled latent space.
 
         """
+        if isinstance(x, list):
+            x = x[0]
         batch_size = len(x)
         latent_mu, latent_sigma = self.encoder(x).chunk(2, dim=1) #both with size [batch_size, latent_size]
         latent_sigma = softplus(latent_sigma)
@@ -194,9 +198,9 @@ class VAEAnomalyDetection(pl.LightningModule, ABC):
     def validation_step(self, batch, batch_idx):
         x = batch
         loss = self.forward(x)
-        self.log('val/loss_epoch', loss['loss'], on_epoch=True)
-        self.log('val_kl', loss['kl'], self.global_step)
-        self.log('val_recon_loss', loss['recon_loss'], self.global_step)
+        self.log('val_loss', loss['loss'], on_epoch=True)
+        self.log('val_kl', loss['kl'])
+        self.log('val_recon_loss', loss['recon_loss'])
 
         return loss
 

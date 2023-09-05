@@ -64,7 +64,8 @@ def main():
     ROOT.joinpath('model').copytree(experiment_folder / 'model')
 
     with open(experiment_folder / 'config.yaml', 'w') as f:
-        yaml.dump(args, f)
+        # save args to yaml file without the header line
+        yaml.dump(vars(args), f, default_flow_style=False)
 
     model = VAEAnomalyTabular(args.input_size, args.latent_size, args.num_resamples, lr=args.lr)
 
@@ -75,16 +76,16 @@ def main():
     val_dloader = DataLoader(val_dataset, args.batch_size)
 
     checkpoint = ModelCheckpoint(
-        filepath=experiment_folder / '{epoch:02d}-{val_loss:.2f}',
+        dirpath=experiment_folder,
+        filename='{epoch:02d}-{val_loss:.2f}',
         save_top_k=1,
         verbose=True,
         monitor='val_loss',
         mode='min',
-        prefix='',
         save_last=True,
     )
 
-    trainer = Trainer(callbacks=[checkpoint],)
+    trainer = Trainer(callbacks=[checkpoint], max_epochs=args.epochs)
     trainer.fit(model, train_dloader, val_dloader)
 
 
